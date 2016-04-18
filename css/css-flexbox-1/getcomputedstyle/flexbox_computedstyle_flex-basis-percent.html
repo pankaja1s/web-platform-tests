@@ -6,22 +6,22 @@
 <script src="/resources/testharnessreport.js"></script>
 <meta name="flags" content="dom">
 <style>
-html {
+body {
 	display: flex;
 	width: 100px;
 }
-body {
+div {
 	color: red;
-	margin: 0;
 	flex-basis: 100%;
 }
 </style>
 <div id="log"></div>
+<div id="test"></div>
 <script>
 test(function() {
-    var body = document.body;
+    var test = document.getElementById("test");
 
-    assert_equals(getComputedStyle(body).getPropertyValue("flex-basis"),
+    assert_equals(getComputedStyle(test).getPropertyValue("flex-basis"),
 	          "100%");
 });
 </script>
