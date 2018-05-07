@@ -18,6 +18,7 @@ from collections import defaultdict, OrderedDict
 from multiprocessing import Process, Event
 
 from localpaths import repo_root
+from six import text_type, binary_type
 from six.moves import reload_module
 
 from manifest.sourcefile import read_script_metadata, js_meta_re, parse_variants
@@ -442,15 +443,23 @@ def check_subdomains(config):
 
 
 def make_hosts_file(config, host):
+    """Generate a hosts file, compatible with most common OSes
+
+    :returns: a binary string of ASCII encoded text with LF line endings"""
     rv = []
 
+    if isinstance(host, text_type):
+        host = host.encode("idna")
+
     for domain in config.domains_set:
-        rv.append("%s\t%s\n" % (host, domain))
+        domain = domain.encode("ascii")
+        rv.append(b"%s\t%s\n" % (host, domain))
 
     for not_domain in config.not_domains_set:
-        rv.append("0.0.0.0\t%s\n" % not_domain)
+        not_domain = not_domain.encode("ascii")
+        rv.append(b"0.0.0.0\t%s\n" % not_domain)
 
-    return "".join(rv)
+    return b"".join(rv)
 
 
 def start_servers(host, ports, paths, routes, bind_address, config, ssl_config,
