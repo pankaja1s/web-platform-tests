@@ -90,6 +90,9 @@ def setup_virtualenv(path, props):
 
 
 def main(prog=None, argv=None):
+    from pyannotate_runtime import collect_types
+    collect_types.init_types_collection()
+    collect_types.resume()
     logging.basicConfig(level=logging.INFO)
 
     if prog is None:
@@ -138,6 +141,8 @@ def main(prog=None, argv=None):
                 pdb.post_mortem()
             else:
                 raise
+    collect_types.pause()
+    collect_types.dump_stats(os.path.join(wpt_root, "pyannotate.json"))
     sys.exit(0)
 
 
