@@ -551,7 +551,15 @@ class SourceFile(object):
         if self.root is None:
             return None
         # return True if the intersection between the two sets is non-empty
-        return bool(self.css_flags & {"animated", "font", "history", "interact", "paged", "speech", "userstyle"})
+        return bool(self.css_flags & {"animated", "font", "history", "interact", "speech", "userstyle"})
+
+    @cached_property
+    def content_is_css_paged(self):
+        """Boolean indicating whether the file content represents a
+        CSS WG-style paged media test"""
+        if self.root is None:
+            return None
+        return "paged" in self.css_flags
 
     @cached_property
     def spec_link_nodes(self):
@@ -653,6 +661,11 @@ class SourceFile(object):
             for variant in self.test_variants:
                 url = self.url + variant
                 rv[1].append(TestharnessTest(self, url, timeout=self.timeout, testdriver=testdriver))
+
+        elif self.content_is_css_paged and self.content_is_ref_node:
+            rv = (PagedRefTestNode.item_type,
+                  [PagedRefTestNode(self, self.url, self.references, timeout=self.timeout,
+                                    viewport_size=self.viewport_size, dpi=self.dpi)])
 
         elif self.content_is_ref_node:
             rv = (RefTestNode.item_type,
