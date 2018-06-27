@@ -9,7 +9,7 @@ import types
 import uuid
 from six.moves import StringIO
 
-from six import text_type
+from six import text_type, binary_type
 
 def resolve_content(response):
     return b"".join(item for item in response.iter_content(read_file=True))
@@ -285,7 +285,7 @@ class ReplacementTokenizer(object):
         return ("arguments", re.split(r",\s*", token[1:-1]) if unwrapped else [])
 
     def ident(self, token):
-        return ("ident", token)
+        return ("ident", token.decode('utf8'))
 
     def index(self, token):
         token = token[1:-1]
@@ -297,9 +297,10 @@ class ReplacementTokenizer(object):
 
     def var(self, token):
         token = token[:-1]
-        return ("var", token)
+        return ("var", token.decode('utf8'))
 
     def tokenize(self, string):
+        assert isinstance(string, binary_type)
         return self.scanner.scan(string)[0]
 
     scanner = re.Scanner([(r"\$\w+:", var),
